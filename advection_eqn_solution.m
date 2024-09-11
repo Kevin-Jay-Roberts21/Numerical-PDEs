@@ -12,8 +12,8 @@ L = 20; % length of solution domain (from zero)
 J = 200; % number of grid points (not counting zero)
 x = linspace(0, L, J+1); % set up a vector of x locations
 dx = L/J; % size of a grid cell, delta x
-c = -1; % advection speed (downward is stable is this is less than 0)
-dt = 0.08; % size of time step, delta t
+c = 1; % advection speed (downward is stable is this is less than 0)
+dt = 0.1; % size of time step, delta t
 
 T = 15; % duraction of simulation
 N = round(T/dt); % number of times to iterate simuation to get to time T
