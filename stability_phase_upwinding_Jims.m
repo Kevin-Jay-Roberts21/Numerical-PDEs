@@ -26,7 +26,7 @@ J=100; L=10; dx=L/J; c=1;
 % where k is the mode number (up to J/2);
 khat=2*pi/L*[1:J/2]; 
 
-phi=.9;
+phi=.8;
 
 figure
 subplot(2,1,1)  % top subplot of two
