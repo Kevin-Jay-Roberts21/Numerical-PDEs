@@ -174,7 +174,7 @@ lax = lax0;
 %     leapfrog = leapn; % reset present solution for next time step
 % end % end time loop
 % 
-% %%
+%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Crank-Nicolson Method on the Advection Equation %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -217,11 +217,11 @@ lax = lax0;
 %     crank = crankn; % reset present solution for next time step
 %     exact = exactn; % for comparing the exact
 % end % end time loop
-% 
-% %%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % Lax-Wendroff Method on the Advection Equation %
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Lax-Wendroff Method on the Advection Equation %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 plot(x, lax0, 'r') % plot the IC
 
@@ -238,7 +238,7 @@ for n = 1:N % beginning the for time loop
 
     for j = 2:J % begin spatial loop; note that j = 1 is x = 0
 
-        laxn(j) = lax(j) + (1/2)*phi*(lax(j+1) - lax(j-1)) + (1/2)*phi^2*(lax(j+1) + lax(j-1) - 2*lax(j));
+        laxn(j) = lax(j) - (1/2)*phi*(lax(j+1) - lax(j-1)) + (1/2)*phi^2*(lax(j+1) + lax(j-1) - 2*lax(j));
 
     end % ending the spatial loop
 
@@ -250,12 +250,12 @@ for n = 1:N % beginning the for time loop
     % to see results as an animation uncomment the line below and comment
     % the if - end statement
 
-    % plot(x,u0,'r',x,laxn,'b'), pause(.1) % plots the next calculated time slice and the IC for reference. Makes this an animation
+    plot(x,u0,'r',x,laxn,'b'), pause(.1) % plots the next calculated time slice and the IC for reference. Makes this an animation
 
-    if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
-        hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
-        hold on, plot(x,laxn,'b'), hold off % if so, add a plot of current solution to existing plot
-    end
+%     if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
+%         hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
+%         hold on, plot(x,laxn,'b'), hold off % if so, add a plot of current solution to existing plot
+%     end
 
     lax = laxn; % reset present solution for next time step
     exact = exactn; % for comparing the exact
