@@ -30,9 +30,13 @@ nphi=50; phi=linspace(1/nphi,2,nphi); % we start at a small phi rather than zero
 % define a 2D grid of k, phi for density plotting
 [K,Phi]=meshgrid(khat,phi);
 
+a_neg2 = 1/6*(Phi^3 - Phi);
+a_neg1 = 1/2*(2*Phi + Phi^2 - Phi^3);
+a_0 = 1 - 1/2*Phi - Phi^2 + 1/2*Phi^3;
+a_1 = 1/6*(-2*Phi + 3*Phi^2 - Phi^3);
+
 % calculate the (complex) von Neumann multiplier
-A = 1 -.5*Phi.*(exp(i*K) -exp(-i*K)) ...
-    +.5*Phi.^2.*(exp(i*K) +exp(-i*K) -2);
+A = a_1*exp(i*K) + a_0 + a_neg1*exp(-i*K) + a_neg2*exp(-2*i*K);
 Lambda=abs(A);
 
 % plot results as a hot density plot, with an additional (green) contour 
