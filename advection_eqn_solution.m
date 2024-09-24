@@ -250,12 +250,12 @@ for n = 1:N % beginning the for time loop
     % to see results as an animation uncomment the line below and comment
     % the if - end statement
 
-    plot(x,u0,'r',x,laxn,'b'), pause(.1) % plots the next calculated time slice and the IC for reference. Makes this an animation
+    % plot(x,u0,'r',x,laxn,'b'), pause(.1) % plots the next calculated time slice and the IC for reference. Makes this an animation
 
-%     if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
-%         hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
-%         hold on, plot(x,laxn,'b'), hold off % if so, add a plot of current solution to existing plot
-%     end
+    if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
+        hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
+        hold on, plot(x,laxn,'b'), hold off % if so, add a plot of current solution to existing plot
+    end
 
     lax = laxn; % reset present solution for next time step
     exact = exactn; % for comparing the exact
