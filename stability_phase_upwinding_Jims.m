@@ -30,9 +30,7 @@ khat=2*pi/L*[1:J/2]
 
 dx
 
-
-
-phi=.8;
+phi=0.8;
 
 figure
 subplot(2,1,1)  % top subplot of two

@@ -10,11 +10,6 @@ clc
 %   u(j,n+1) = u(j,n) -1/2 phi ( u(j+1,n) - u(j-1,n) )
 %                   +1/2 phi^2 (u(j+1,n) + u(j-1,n) -2 u(j,n) )
 % 
-% where:
-%   phi = c delta t/delta x is the Courant number
-% 
-% Written by Jim Powell, 20 Sept. 2024
-% 
 
 % Just for definiteness, assume we are working on an interval of length 10
 % with 100 subdivisions:
@@ -35,9 +30,15 @@ a_neg1 = 1/2*(2*Phi + Phi^2 - Phi^3);
 a_0 = 1 - 1/2*Phi - Phi^2 + 1/2*Phi^3;
 a_1 = 1/6*(-2*Phi + 3*Phi^2 - Phi^3);
 
-% calculate the (complex) von Neumann multiplier
-A = a_1*exp(i*K) + a_0 + a_neg1*exp(-i*K) + a_neg2*exp(-2*i*K);
-Lambda=abs(A);
+% calculate the (complex) von Neumann multiplier 3rd Order Upwind
+A1 = a_1*exp(i*K) + a_0 + a_neg1*exp(-i*K) + a_neg2*exp(-2*i*K);
+
+% calculate the (complex) von Neumann multiplier Lax-Wendroff
+A2 = 1 -.5*Phi.*(exp(i*K) -exp(-i*K)) ...
+    +.5*Phi.^2.*(exp(i*K) +exp(-i*K) -2);
+
+
+Lambda=abs(A1);
 
 % plot results as a hot density plot, with an additional (green) contour 
 % indicating lambda = 1
@@ -48,7 +49,7 @@ title('Stability of Lax-Wendroff')
 
 % now for phase speed ratio
 Dt=dx/c*Phi;   % matrix of delta ts
-Omega=-atan2(imag(A),real(A))./Dt;
+Omega=-atan2(imag(A1),real(A1))./Dt;
 Phase_Ratio=dx/c*Omega./K;      % because the K has a factor of dx in it
 
 % density plot
@@ -57,7 +58,3 @@ pcolor(K/dx,Phi,Phase_Ratio), shading flat, colormap parula, colorbar
 hold on, contour(K/dx,Phi,Phase_Ratio,[1 1],'k','LineWidth',2), hold off
 xlabel('Wave number'), ylabel('\phi')
 title('Phase Speed Ratio for Lax-Wendroff')
-
-
-% calculate von Neumann stability:
-

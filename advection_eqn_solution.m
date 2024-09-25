@@ -12,7 +12,7 @@ J = 200; % number of grid points (not counting zero)
 x = linspace(0, L, J+1); % set up a vector of x locations
 dx = L/J; % size of a grid cell, delta x
 c = 1; % advection speed (downward is stable is this is less than 0)
-dt = 0.08; % size of time step, delta t
+dt = 0.12; % size of time step, delta t
 phi = c*dt/dx; % phase speed
 
 T = 15; % duraction of simulation
@@ -26,7 +26,7 @@ c0 = x./(x.^4 + 1);
 leap0 = x./(x.^4 + 1);
 crank0 = x./(x.^4 + 1);
 lax0 = x./(x.^4 + 1);
-lax30 = x./(x.^4 + 1);
+up30 = x./(x.^4 + 1);
 
 exact = exact0;
 up = u0; 
@@ -35,7 +35,7 @@ centered = c0;
 leapfrog = leap0;
 crank = crank0;
 lax = lax0;
-lax3 = lax30;
+up3 = up30;
 
 % %%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -264,18 +264,18 @@ lax3 = lax30;
 % end % end time loop
 
 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 3rd Order Lax-Wendroff Method on the Advection Equation %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3rd Order Upwind Method on the Advection Equation %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-plot(x, lax30, 'r') % plot the IC
+plot(x, up30, 'r') % plot the IC
 
 % if we want to compare with the exact solution
 plot(x, exact0, 'r')
 
 % add labels to the plot
 xlabel('x'), ylabel('u(x,t)')
-title(['3rd Order Lax Wendroff method on the advection equation, \phi = ' num2str(c*dt/dx)])
+title(['3rd Order Upwind method on the advection equation, \phi = ' num2str(c*dt/dx)])
 
 % defining coefficients
 a_neg2 = 1/6*(phi^3 - phi);
@@ -285,20 +285,20 @@ a_1 = 1/6*(-2*phi + 3*phi^2 - phi^3);
 
 for n = 1:N % beginning the for time loop
 
-    lax3(1) = 0; % setting a boundary condition
+    up3(1) = 0; % setting a boundary condition
 
     for j = 2:J % begin spatial loop; note that j = 1 is x = 0
         
         if j == 2
             % using the upwind scheme for when j = 2
-            lax3n(j) = lax3(j) - phi*(lax3(j)-lax3(j-1));
+            up3n(j) = up3(j) - phi*(up3(j)-up3(j-1));
         else
-            lax3n(j) = a_neg2*lax3(j-2) + a_neg1*lax3(j-1) + a_0*lax3(j) + a_1*lax3(j+1);
+            up3n(j) = a_neg2*up3(j-2) + a_neg1*up3(j-1) + a_0*up3(j) + a_1*up3(j+1);
         end
 
     end % ending the spatial loop
 
-    lax3n(J+1) = 0; % setting the other boundary condition
+    up3n(J+1) = 0; % setting the other boundary condition
 
     % evaluating the exact solution
     exactn = (x - c*n*dt)./(1 + (x - c*n*dt).^4).*(x>=c*n*dt); 
@@ -310,9 +310,9 @@ for n = 1:N % beginning the for time loop
 
     if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
         hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
-        hold on, plot(x,lax3n,'b'), hold off % if so, add a plot of current solution to existing plot
+        hold on, plot(x,up3n,'b'), hold off % if so, add a plot of current solution to existing plot
     end
 
-    lax3 = lax3n; % reset present solution for next time step
+    up3 = up3n; % reset present solution for next time step
     exact = exactn; % for comparing the exact
 end % end time loop
