@@ -18,24 +18,30 @@ N = round(T/dt); % number of times to iterate simuation to get to time T
 
 % modifying the boundary conditions
 b0 = 0; % left boundary condition
-bL = 0; % right boundary condition
+bL = 2; % right boundary condition
 
-% modifying the initial condition
-i_c = 2*sin(x.*(pi/L)) + sin(x.*(2*pi/L));
+% Used for homogeneous bc
+i_c_1 = 2*sin(x.*(pi/L)) + sin(x.*(2*pi/L));
+
+% Used for b0 =0 and bL = 2
+i_c_2 = x.*2/L + (2 - 4/pi)*sin(x.*(pi/L)) + sin(x.*(2*pi/L)) + 4/(9*pi)*sin(x.*(3*pi/L));
+
+% Used for no-flux boundary and different IC
+i_c_3 = 2*sin(x.*(pi/(2*L))) + sin(x.*(3*pi/(2*L)));
 
 % setting the initial conditions for the various methods
-exact0 = i_c;
-FTCS0 = i_c;
+exact0 = i_c_3;
+FTCS0 = i_c_3;
 exact = exact0;
 FTCS = FTCS0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FTCS Method on the Diffusion Equation %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-plot(x, FTCS0, 'b') % plot the IC
+hold on, plot(x, FTCS0, 'b'), hold off % plot the IC
 
 % if we want to compare with the exact solution
-plot(x, exact0, 'r')
+hold on, plot(x, exact0, 'r'), hold off
 
 % add labels to the plot
 xlabel('x'), ylabel('u(x,t)')
@@ -53,33 +59,30 @@ for n = 2:N % beginning the for time loop
         elseif j == J+1
             % used for no flux at the boundary:
             % FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j));
-            FTCSn(j) = bL;
+            % FTCSn(j) = bL;
+
+            % for the no flux boundary
+            FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j));
         else
             FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j+1));
         end
         
-        % evaluating the exact solution
-        % Compute the exact solution using Fourier series
-        % Reset for next time step
-        exact(j) = 0;
-        for k = 1:2  % Only compute for n=1 and n=2
-            A_k = (k == 1) * 2 + (k == 2) * 1;  % Coefficients for n=1 and n=2
-            contribution = A_k * exp(-((k * pi / L)^2) * D * t) * sin(k * pi * x(j) / L);
-            exact(j) = exact(j) + contribution;
-        end
-        
-        
     end % ending the spatial loop
     
-    % evaluating the exact solution (making it satisfy the boundary conds.)
+    % % evaluating the exact solution (for b0 = 0 and bL = 0)
+    % exactn = 2*exp(-pi^2*D*n*dt/L^2)*sin(x.*(pi/L)) + exp(-4*pi^2*D*n*dt/L^2)*sin(x.*(2*pi/L))
     
+    % % evaluating the exact solution (for b0 = 0 and bL = 0)
+    % exactn = x.*(2/L) + (2-4\pi)*exp(-pi^2*D*n*dt/L^2)*sin(x.*(pi/L)) + exp(-4*pi^2*D*n*dt/L^2)*sin(x.*(2*pi/L)) + 4/(9*pi)*exp(-9*pi^2*D*n*dt/L^2)*sin(x.*(3*pi/L))
     
-    
+    % % evaluating the exact solution for no-flux
+    exactn = 2*exp(-pi^2*D*n*dt/(4*L^2))*sin(x.*(pi/(2*L))) + exp(-9*pi^2*D*n*dt/(4*L^2))*sin(x.*(3*pi/(2*L)))
+
     % to see results as an animation uncomment the line below and comment
     % the if - end statement
     % plot(x,u0,'r',x,crankn,'b'), pause(.1) % plots the next calculated time slice and the IC for reference. Makes this an animation
     if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
-        hold on, plot(x,exact, 'r'), hold off % for plotting the exact
+        hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
         hold on, plot(x,FTCSn,'b'), hold off % if so, add a plot of current solution to existing plot
     end
     
