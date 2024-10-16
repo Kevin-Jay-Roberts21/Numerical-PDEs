@@ -50,16 +50,23 @@ title(['FTCS method on the diffusion equation, \rho = ' num2str(D*dt/(dx^2))])
 
 
 % Define matrices A and B for interior points (199x199)
-diagA = (1 + p)*ones(J-1, 1);  % Diagonal for A (199x199)
-off_diagA = (-p/2)*ones(J-2, 1);  % Off-diagonal for A (198 elements)
+diagA = (1 + p)*ones(J+1, 1);
+off_diagA = (-p/2)*ones(J, 1);
 A = diag(diagA) + diag(off_diagA, 1) + diag(off_diagA, -1);
 
-diagB = (1 - p)*ones(J-1, 1);  % Diagonal for B (199x199)
-off_diagB = (p/2)*ones(J-2, 1);  % Off-diagonal for B (198 elements)
+diagB = (1 - p)*ones(J+1, 1);
+off_diagB = (p/2)*ones(J, 1);
 B = diag(diagB) + diag(off_diagB, 1) + diag(off_diagB, -1);
 
-size(A)  % Should be 199x199
-size(B)  % Should be 199x199
+% setting the boundary conditions
+% NEED TO ADDRESS THIS
+A(1,:) = 0;
+A(1,1) = b0;
+B(1,:) = 0;
+B(1,1) = bL;
+
+size(A)
+size(B)
 
 for n = 2:N
     
