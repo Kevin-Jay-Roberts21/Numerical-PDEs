@@ -1,23 +1,21 @@
 function [x] = tri_diag_sol(a,b,c,d)
 
-    J = length(d) % could also be length(a)
+    J = length(a) % could also be length(d)
 
     alpha(1) = a(1);
     delta(1) = d(1);
 
     % defining the entire alpha and delta vector
-    for i = 2:J
-        alpha(i) = a(i) - b(i-1)*c(i-1)/alpha(i-1);
-        delta(i) = d(i) - delta(i-1)*c(i-1)/alpha(i-1);
+    for j = 2:J
+        alpha(j) = a(j) - b(j-1)*c(j-1)/alpha(j-1);
+        delta(j) = d(j) - delta(j-1)*c(j-1)/alpha(j-1);
     end
-
-    x(1) = delta(J)/alpha(J) % first x element
-
-    % solving for the x vector (middle elements)
-    for i = 3:J
-        x(j-1) = 1/alpha(j-1)*(delta(j-1) - b(j)*alpha(j)) 
-    end
-
-    x(J) =  (delta(1) - b(2)*alpha(2))/alpha(1) % last x element
     
+    x = zeros(1, J); % defining the solution
+    x(J) = delta(J)/alpha(J); % last x element
+
+    % solving for the x vector (the rest of the elements)
+    for j = J:-1:2
+        x(j-1) = (delta(j-1) - b(j-1)*x(j))/alpha(j-1);
+    end
 end
