@@ -1,4 +1,4 @@
-% Diffusion Solutions
+% FTCS on the heat equation
 % Kevin Roberts
 % 10-13-2024
 clear all
@@ -18,7 +18,7 @@ N = round(T/dt); % number of times to iterate simuation to get to time T
 
 % modifying the boundary conditions
 b0 = 0; % left boundary condition
-bL = 2; % right boundary condition
+bL = 0; % right boundary condition
 
 % Used for homogeneous bc
 i_c_1 = 2*sin(x.*(pi/L)) + sin(x.*(2*pi/L));
@@ -30,8 +30,8 @@ i_c_2 = x.*2/L + (2 - 4/pi)*sin(x.*(pi/L)) + sin(x.*(2*pi/L)) + 4/(9*pi)*sin(x.*
 i_c_3 = 2*sin(x.*(pi/(2*L))) + sin(x.*(3*pi/(2*L)));
 
 % setting the initial conditions for the various methods
-exact0 = i_c_3;
-FTCS0 = i_c_3;
+exact0 = i_c_1;
+FTCS0 = i_c_1;
 exact = exact0;
 FTCS = FTCS0;
 
@@ -56,27 +56,25 @@ for n = 2:N % beginning the for time loop
         % the if and the else if statement handle the boundary conditions
         if j == 1
             FTCSn(j) = b0;
-        elseif j == J+1
-            % used for no flux at the boundary:
-            % FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j));
-            % FTCSn(j) = bL;
+        elseif j == J+1   
+            FTCSn(j) = bL;
 
-            % for the no flux boundary
-            FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j));
+            % % for the no flux boundary
+            % FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j));
         else
             FTCSn(j) = FTCS(j) + p*(FTCS(j-1) - 2*FTCS(j) + FTCS(j+1));
         end
         
     end % ending the spatial loop
     
-    % % evaluating the exact solution (for b0 = 0 and bL = 0)
-    % exactn = 2*exp(-pi^2*D*n*dt/L^2)*sin(x.*(pi/L)) + exp(-4*pi^2*D*n*dt/L^2)*sin(x.*(2*pi/L))
+    % evaluating the exact solution (for b0 = 0 and bL = 0)
+    exactn = 2*exp(-pi^2*D*n*dt/L^2)*sin(x.*(pi/L)) + exp(-4*pi^2*D*n*dt/L^2)*sin(x.*(2*pi/L))
     
     % % evaluating the exact solution (for b0 = 0 and bL = 0)
     % exactn = x.*(2/L) + (2-4\pi)*exp(-pi^2*D*n*dt/L^2)*sin(x.*(pi/L)) + exp(-4*pi^2*D*n*dt/L^2)*sin(x.*(2*pi/L)) + 4/(9*pi)*exp(-9*pi^2*D*n*dt/L^2)*sin(x.*(3*pi/L))
     
     % % evaluating the exact solution for no-flux
-    exactn = 2*exp(-pi^2*D*n*dt/(4*L^2))*sin(x.*(pi/(2*L))) + exp(-9*pi^2*D*n*dt/(4*L^2))*sin(x.*(3*pi/(2*L)))
+    % exactn = 2*exp(-pi^2*D*n*dt/(4*L^2))*sin(x.*(pi/(2*L))) + exp(-9*pi^2*D*n*dt/(4*L^2))*sin(x.*(3*pi/(2*L)))
 
     % to see results as an animation uncomment the line below and comment
     % the if - end statement
