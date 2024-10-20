@@ -54,8 +54,8 @@ for n = 1:N
     t = n*dt;
 
     b = B * FTCS(2:end-1);
-    b(1) = b(1) + (p/2) * FTCS(1); % left end boundary conditions
-    b(end) = b(end) + (p/2)*FTCS(end); % right end boundary condtion
+    b(1) = b0 + (p/2) * FTCS(1); % left end boundary conditions
+    b(end) = bL + (p/2)*FTCS(end); % right end boundary condtion
     FTCS(2:end-1) = A \ b; % updating FTCSn (the solution at time step n)
     FTCSn = FTCS;
     
