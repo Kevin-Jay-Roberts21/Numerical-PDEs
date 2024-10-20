@@ -38,7 +38,7 @@ hold on, plot(x, exact, 'r'), hold off
 
 % add labels to the plot
 xlabel('x'), ylabel('u(x,t)')
-title(['FTCS method on the diffusion equation, \rho = ' num2str(D*dt/(dx^2))])
+title(['Crank Nicolson method on the diffusion equation, \rho = ' num2str(D*dt/(dx^2))])
 
 % Define matrices A and B
 diagA = (1 + p)*ones(J-1, 1); % diagonal
