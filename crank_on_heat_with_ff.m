@@ -46,6 +46,11 @@ title(['Crank Nicolson method on the diffusion equation with ff, \rho = ' num2st
 % Define matrices A and B
 diagA = (1 + p)*ones(J-1, 1); % diagonal
 off_diagA = (-p/2)*ones(J-2, 1); % off diagonals
+
+a = (1+p)*ones(J-1,1);
+b = (-p/2)*ones(J-2, 1);
+c = (-p/2)*ones(J-2, 1);
+
 A = diag(diagA) + diag(off_diagA, 1) + diag(off_diagA, -1);
 
 diagB = (1 - p)*ones(J-1, 1); % diagonal
@@ -57,17 +62,17 @@ for n = 1:N
     t = n*dt;
     
     % adding the forcing function
-    f_t = 10 + 5*cos(2*pi*n*dt/24);
+    f_t = 10 - 5*cos(2*pi*(n+1/2)*dt/24);
     
-    b = B * FTCS(2:end-1);
+    d = B * FTCS(2:end-1);
     
-    b(1) = b0 + (p/2) * FTCS(1); % left end boundary conditions
-    b(end) = bL + (p/2) * FTCS(end); % right end boundary condtion
+    d(1) = b0 + (p/2) * FTCS(1); % left end boundary conditions
+    d(end) = bL + (p/2) * FTCS(end); % right end boundary condtion
     
     % adding the forcing function contribution
-    b = b + f_t * dt;
+    d = d + f_t * dt;
     
-    FTCS(2:end-1) = A \ b; % updating FTCSn (the solution at time step n)
+    FTCS(2:end-1) = tri_diag_sol(a, b, c, d); % updating FTCSn (the solution at time step n)
     FTCSn = FTCS;
     
     % evaluating the exact solution (for b0 = 0 and bL = 0)
