@@ -10,35 +10,27 @@ clc
 J = 256;      % use a power of two for maximum efficiency
 L = 10;       % half width of domain
 dx = 2 * L / J;   % spatial step size
-x1 = linspace(0, L - dx, J);  % FFT assumes f(L)=f(-L), so last point unnecessary
-x2 = linspace(-L, -1, J);
-x = [x2, x1];
+x = linspace(-L, L - dx, J);  % FFT assumes f(L)=f(-L), so last point unnecessary
 D = 1;        % diffusion constant
 
-% set initial condition and take FFT
-f = 10 * (abs(x1 - 3) < 2);     % block wave, width 4, centered at x=3
+f = zeros(size(x));
 
-% Homogenous Dirichlet boundary conditions (u = 0 at x = -L and x = L)
-% Reflect f with inverted sign at boundaries
-% NOTE: the -fliplr(f) function takes the list, flips it, and makes it
-% negative, for example if f = [1, 2, 3, 4], the -fliplr(f) = [-4, -3, -2, -1]
-f_reflected_dirichlet = [-fliplr(f), f];
+% set initial condition and take FFT
+f(x >= 0) = 10 * (abs(x(x >= 0) - 3) < 2); % f for x >= 0
+f(x < 0) = -10 * (abs(x(x < 0) + 3) < 2); % f for x < 0
 
 % Update ks to match the length of the expanded domain
-ks_reflected = pi / L * [0:(2*J)/2 1-(2*J)/2:-1];  % Adjust for size 2*J
-
-length(f_reflected_dirichlet)
-length(x)
+ks = pi / L * [0:J/2 1-J/2:-1];  % Adjust for size 2*J
 
 % Homogenous Dirichlet
 figure;
-fk = fft(f_reflected_dirichlet);  % transform!
-plot(x, f_reflected_dirichlet, 'r'), hold on  % IC in red (only plot original domain)
+fk = fft(f);  % transform!
+plot(x, f, 'r'), hold on  % IC in red (only plot original domain)
 for t = 1:5   % times for the various solutions
-    uk = exp(-D * t * ks_reflected.^2).*fk;     % solution in wave space
+    uk = exp(-D * t * ks.^2).*fk;     % solution in wave space
     u = real(ifft(uk)); % inverse FFT, ignore small imaginary bits
     u = u(1:J); % extract original domain
-    plot(x1, u, 'b')
+    plot(x, u, 'b')
 end
 title('Homogenous Dirichlet Boundary Conditions')
 xlabel('x'), ylabel('u(x,t)')
@@ -55,22 +47,21 @@ dx = 2 * L / J;   % spatial step size
 x = linspace(-L, L - dx, J);  % FFT assumes f(L)=f(-L), so last point unnecessary
 D = 1;        % diffusion constant
 
-% set initial condition and take FFT
-f = 10 * (abs(x - 3) < 2);     % block wave, width 4, centered at x=3
+f = zeros(size(x));
 
-% Homogenous Neumann boundary conditions (du/dx = 0 at x = -L and x = L)
-% Reflect f without inverting sign at boundaries
-f_reflected_neumann = [fliplr(f), f];
+% set initial condition and take FFT
+f(x >= 0) = 10 * (abs(x(x >= 0) - 3) < 2); % f for x >= 0
+f(x < 0) = 10 * (abs(x(x < 0) + 3) < 2); % f for x < 0
 
 % Update ks to match the length of the expanded domain
-ks_reflected = pi / L * [0:(2*J)/2 1-(2*J)/2:-1];  % Adjust for size 2*J
+ks = pi / L * [0:J/2 1-J/2:-1];  % Adjust for size 2*J
 
 % Homogenous Neumann
 figure;
-fk = fft(f_reflected_neumann);  % transform!
+fk = fft(f);  % transform!
 plot(x, f, 'r'), hold on  % IC in red (only plot original domain)
 for t = 1:5   % times for the various solutions
-    uk = exp(-D * t * ks_reflected.^2) .* fk;     % solution in wave space
+    uk = exp(-D * t * ks.^2).*fk;     % solution in wave space
     u = real(ifft(uk)); % inverse FFT, ignore small imaginary bits
     u = u(1:J); % extract original domain
     plot(x, u, 'b')
@@ -84,30 +75,34 @@ hold off
 % Mixed %
 %%%%%%%%%
 
-J = 256;      % use a power of two for maximum efficiency
+J = 2*256;      % use a power of two for maximum efficiency
 L = 10;       % half width of domain
 dx = 2 * L / J;   % spatial step size
-x = linspace(-L, L - dx, J);  % FFT assumes f(L)=f(-L), so last point unnecessary
+x = linspace(-2*L, 2*L - dx, J);  % FFT assumes f(L)=f(-L), so last point unnecessary
 D = 1;        % diffusion constant
 
-% set initial condition and take FFT
-f = 10 * (abs(x - 3) < 2);     % block wave, width 4, centered at x=3
+f = zeros(size(x));
 
-% Mixed boundary conditions (Dirichlet at x = -L, Neumann at x = L)
-f_mixed = [fliplr(f), f];  % Dirichlet reflection at -L
-f_mixed(end/2+1:end) = fliplr(f);  % Neumann reflection at L
+% set initial condition and take FFT
+f(abs(x - 13) < 2 & x >= 0) = -10;
+f(abs(x - 3) < 2 & x > 0) = 10;
+f(abs(x + 3) < 2 & x < 0) = 10;
+f(abs(x + 13) < 2 & x < 0) = -10;
 
 % Update ks to match the length of the expanded domain
-ks_reflected = pi / L * [0:(2*J)/2 1-(2*J)/2:-1];  % Adjust for size 2*J
+ks = pi / L * [0:J/2 1-J/2:-1];  % Adjust for size 2*J
 
 % Mixed boundary conditions
 figure;
-fk = fft(f_mixed);  % transform!
-plot(x, f, 'r'), hold on  % IC in red (only plot original domain)
-for t = 1:5   % times for the various solutions
-    uk = exp(-D * t * ks_reflected.^2) .* fk;     % solution in wave space
-    u = real(ifft(uk)); % inverse FFT, ignore small imaginary bits
-    u = u(1:J); % extract original domain
+fk = fft(f);  % Transform!
+
+length(ks)
+length(fk)
+plot(x, f, 'r'), hold on  % Plot IC in red (only plot original domain)
+for t = 1:5   % Times for the various solutions
+    uk = exp(-D * t * ks.^2).*fk;  % Solution in wave space
+    u = real(ifft(uk));  % Inverse FFT, ignore small imaginary bits
+    u = u(1:J);  % Extract original domain
     plot(x, u, 'b')
 end
 title('Mixed Boundary Conditions')
