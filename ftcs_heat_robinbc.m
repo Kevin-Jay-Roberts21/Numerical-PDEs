@@ -15,7 +15,7 @@ dt = 0.0016; % size of time step, delta t
 p = D*dt/(dx^2) % defining the dimensionless combination to be p (rho)
 T = 15; % duraction of simulation
 N = round(T/dt); % number of times to iterate simuation to get to time T
-a = 0.5; 
+a = 5; 
 
 % defining the initial condition
 i_c_1 = 2*sin(x.*(pi/L)) + sin(x.*(2*pi/L));
@@ -33,11 +33,11 @@ hold on, plot(x, FTCS0, 'b'), hold off % plot the IC
 
 % add labels to the plot
 xlabel('x'), ylabel('u(x,t)')
-title(['FTCS method on the diffusion equation, \rho = ' num2str(D*dt/(dx^2))])
+title(['FTCS method on the diffusion equation, \rho = ' num2str(D*dt/(dx^2)) ' and a = ' num2str(a)])
 
 for n = 2:N % beginning the for time loop
     
-    FTCSn(1) = FTCS(1) + p*((FTCS(1)*(1 + a*dx) - a*dx*T) - 2*FTCS(1));
+    FTCSn(1) = (1 - 2*p*(1 + a*dx))*FTCS(1) + 2*a*p*T*dx;
     
     for j = 2:J % begin spatial loop; note that j = 1 is x = 0    
         
