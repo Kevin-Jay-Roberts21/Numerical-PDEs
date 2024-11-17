@@ -77,17 +77,17 @@ hold off
 
 J = 2*256;      % use a power of two for maximum efficiency
 L = 10;       % half width of domain
-dx = 2 * L / J;   % spatial step size
+dx = 4 * L / J;   % spatial step size
 x = linspace(-2*L, 2*L - dx, J);  % FFT assumes f(L)=f(-L), so last point unnecessary
 D = 1;        % diffusion constant
 
 f = zeros(size(x));
 
 % set initial condition and take FFT
-f(abs(x - 13) < 2 & x >= 0) = -10;
+f(abs(x - 17) < 2 & x >= 0) = -10;
 f(abs(x - 3) < 2 & x > 0) = 10;
 f(abs(x + 3) < 2 & x < 0) = 10;
-f(abs(x + 13) < 2 & x < 0) = -10;
+f(abs(x + 17) < 2 & x < 0) = -10;
 
 % Update ks to match the length of the expanded domain
 ks = pi / L * [0:J/2 1-J/2:-1];  % Adjust for size 2*J
