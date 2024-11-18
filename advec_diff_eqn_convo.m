@@ -51,39 +51,29 @@ J = 256;      % use a power of two for maximum efficiency
 L = 5;       % half width of domain
 dx = 2 * L/J;   % spatial step size
 x = linspace(-L, L-dx, J);  % FFT assumes f(L)=f(-L) so last point unnecessary
+dt = 1;
 hr = 12; % total time in hours
 km = 10; % total distance in kilimeters
 D = 0.5*km^2/hr;        % diffusion constant
 
 % set initial condition and take FFT
-u_0 = zeros(size(x));     
-uk = fft(u_0);                 % transform!
-uk_p = fft(u_0);
+g_0 = max(0, sin(pi/12*(1*dt)).*cos(3*pi/(4*L)*(x + L*((1*dt)-6)/12)));
+u_0 = 0.5*g_0;
+u = u_0;
 
-% set up vector of wave numbers
-ks = pi/L * [0:J/2 1-J/2:-1]; % where k = [0:J/2 1-J/2:-1]
+K = exp(-.25/(D*1)*x.^2)/sqrt(4*pi*D*1);     % fundamental soln at time t
 
 % calculate and plot spectral solution at different times
 plot(x, u_0, 'r')   % IC in red
 
 for t=1:hr   % times for the various solutions (in hours)
-    K = exp(-.25/(D*t)*x.^2)/sqrt(4*pi*D*t);     % fundamental soln at time t
-    Kk = dx*fft(K);       % scaled FFT of K for convolution
     
-    uk = Kk.*uk;          % implement convolution in wve space
+    g = max(0, sin(pi/12*(t*dt)).*cos(3*pi/(4*L)*(x + L*((t*dt)-6)/12)));
+    new_u = K .* u + 0.5*dt.*g;
     
-    g = max(0, sin(pi/12*t).*cos(3*pi/(4*L)*(x + L*(t-6)/12)));
-    gk = dx*fft(g); % Fourier transform of the source term
+    hold on, plot(x, new_u, 'b'), hold off
     
-    % don't need to add the dtau here since dtau is just 1
-    uk_p = 0.5*gk + 0.5*Kk.*uk_p
-
-    % updated solution by adding the effect of g (null + particular)
-    uk = uk.*Kk + gk;
-    
-    u = real(fftshift(ifft(uk))); % implement shift, ignore small imaginary bits
-    
-    hold on, plot(x, u, 'b'), hold off
+    u = new_u;
 end
 
 xlabel('x'), ylabel('u(x,t)')
