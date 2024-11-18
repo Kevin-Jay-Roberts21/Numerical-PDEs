@@ -61,18 +61,22 @@ g_0 = max(0, sin(pi/12*(1*dt)).*cos(3*pi/(4*L)*(x + L*((1*dt)-6)/12)));
 u_0 = 0.5*g_0;
 u = u_0;
 
-K = exp(-.25/(D*1)*x.^2)/sqrt(4*pi*D*1);     % fundamental soln at time t
+K = exp(-.25/(D*1)*x.^2)/sqrt(4*pi*D*1);   
+Kk = dx*fft(K); % scaled fourier transform of K
 
 % calculate and plot spectral solution at different times
 plot(x, u_0, 'r')   % IC in red
 
-for t=1:hr   % times for the various solutions (in hours)
+for t=2:hr   % times for the various solutions (in hours)
     
     g = max(0, sin(pi/12*(t*dt)).*cos(3*pi/(4*L)*(x + L*((t*dt)-6)/12)));
-    new_u = K .* u + 0.5*dt.*g;
+    
+    uk = fft(u);
+    new_uk = Kk.*uk
+    new_u = real(ifft(new_uk)) + 0.5*dt.*g;
     
     hold on, plot(x, new_u, 'b'), hold off
-    
+  
     u = new_u;
 end
 
