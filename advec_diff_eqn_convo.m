@@ -53,8 +53,7 @@ dx = 2 * L/J;   % spatial step size
 x = linspace(-L, L-dx, J);  % FFT assumes f(L)=f(-L) so last point unnecessary
 dt = 1;
 hr = 12; % total time in hours
-km = 10; % total distance in kilimeters
-D = 0.5*km^2/hr;        % diffusion constant
+D = 0.5;        % diffusion constant
 
 % set initial condition and take FFT
 g_0 = max(0, sin(pi/12*(1*dt)).*cos(3*pi/(4*L)*(x + L*((1*dt)-6)/12)));
@@ -67,13 +66,13 @@ Kk = dx*fft(K); % scaled fourier transform of K
 % calculate and plot spectral solution at different times
 plot(x, u_0, 'r')   % IC in red
 
-for t=2:hr   % times for the various solutions (in hours)
+for t=1:hr   % times for the various solutions (in hours)
     
     g = max(0, sin(pi/12*(t*dt)).*cos(3*pi/(4*L)*(x + L*((t*dt)-6)/12)));
     
-    uk = fft(u);
-    new_uk = Kk.*uk
-    new_u = real(ifft(new_uk)) + 0.5*dt.*g;
+    u = fft(u);
+    uk = Kk.*u;
+    new_u = real(fftshift(ifft(uk))) + 0.5*dt.*g;
     
     hold on, plot(x, new_u, 'b'), hold off
   
