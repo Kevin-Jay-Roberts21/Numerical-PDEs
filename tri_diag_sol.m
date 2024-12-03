@@ -1,6 +1,6 @@
 function [x] = tri_diag_sol(a,b,c,d)
 
-    J = length(a) % could also be length(d)
+    J = length(a); % could also be length(d)
 
     alpha(1) = a(1);
     delta(1) = d(1);
