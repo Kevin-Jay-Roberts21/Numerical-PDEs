@@ -11,11 +11,16 @@ J = 200; % number of grid points (not counting zero)
 x = linspace(0, L, J+1); % set up a vector of x locations
 dx = L/J; % size of a grid cell, delta x
 D = 1; % diffusion coefficient
-dt = 0.0016; % size of time step, delta t
+dt = 0.0045; % size of time step, delta t
 p = D*dt/(dx^2) % defining the dimensionless combination to be p (rho)
 T = 15; % duraction of simulation
 N = round(T/dt); % number of times to iterate simuation to get to time T
-a = 5; 
+a = 2; 
+
+% Note: from the notes, the system is stable is 1/2 < rho < 1/2(1 + a*dx) 
+LHS_cond = 1/2;
+RHS_cond = 1/(2*(1 + a*dx));
+
 
 % defining the initial condition
 i_c_1 = 2*sin(x.*(pi/L)) + sin(x.*(2*pi/L));
