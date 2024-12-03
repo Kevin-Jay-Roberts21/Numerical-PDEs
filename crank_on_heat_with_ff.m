@@ -61,13 +61,19 @@ for n = 1:N
     
     t = n*dt;
     
-    % adding the forcing function
-    f_t = 10 - 5*cos(2*pi*(n+1/2)*dt/24);
+    % adding the forcing function (doing the average to preserve second order)
+    f_n = 10 - 5*cos(2*pi*(n)*dt/24);
+    f_n_plus1 = 10 - 5*cos(2*pi*(n+1)*dt/24);
+    f_t = 0.5 * (f_n + f_n_plus1); 
     
-    d = B * FTCS(2:end-1);
-    
-    d(1) = b0 + (p/2) * FTCS(1); % left end boundary conditions
-    d(end) = bL + (p/2) * FTCS(end); % right end boundary condtion
+    % Compute d using the tridiagonal structure (as opposed to d = B * FTCS(2:end-1))
+    u_inner = FTCS(2:end-1);
+    d = zeros(size(u_inner));
+    d(1) = diagB(1)*u_inner(1) + off_diagB(1)*u_inner(2);
+    for j = 2:J-2
+        d(j) = off_diagB(j-1)*u_inner(j-1) + diagB(j)*u_inner(j) + off_diagB(j)*u_inner(j+1);
+    end
+    d(end) = off_diagB(end)*u_inner(end-1) + diagB(end)*u_inner(end);
     
     % adding the forcing function contribution
     d = d + f_t * dt;
@@ -78,12 +84,12 @@ for n = 1:N
     % evaluating the exact solution (for b0 = 0 and bL = 0)
     % exactn = 2*exp(-pi^2*D*n*dt/L^2)*sin(x*(pi/L)) + exp(-4*pi^2*D*n*dt/L^2)*sin(x*(2*pi/L));
     
-    if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
+    if mod(n*dt, 2) < dt % check if current time is close to a multiple of 2
         % hold on, plot(x,exactn, 'r'), hold off % for plotting the exact
-        hold on, plot(x,FTCSn,'b'), hold off % if so, add a plot of current solution to existing plot
+        hold on, plot(x, FTCSn, 'b'), hold off % if so, add a plot of current solution to existing plot
         
     end
-    
+    n
     % Update for the next time step
     FTCS = FTCSn;
 end
