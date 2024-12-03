@@ -45,6 +45,10 @@ diagA = (1 + p)*ones(J-1, 1); % diagonal
 off_diagA = (-p/2)*ones(J-2, 1); % off diagonals
 A = diag(diagA) + diag(off_diagA, 1) + diag(off_diagA, -1);
 
+a = diagA;
+b = off_diagA;
+c = off_diagA;
+
 diagB = (1 - p)*ones(J-1, 1); % diagonal
 off_diagB = (p/2)*ones(J-2, 1); % off diagonals
 B = diag(diagB) + diag(off_diagB, 1) + diag(off_diagB, -1);
@@ -53,10 +57,16 @@ for n = 1:N
     
     t = n*dt;
 
-    b = B * FTCS(2:end-1);
-    b(1) = b0 + (p/2) * FTCS(1); % left end boundary conditions
-    b(end) = bL + (p/2)*FTCS(end); % right end boundary condtion
-    FTCS(2:end-1) = A \ b; % updating FTCSn (the solution at time step n)
+    % Compute d using the tridiagonal structure (as opposed to d = B * FTCS(2:end-1))
+    u_inner = FTCS(2:end-1);
+    d = zeros(size(u_inner));
+    d(1) = diagB(1)*u_inner(1) + off_diagB(1)*u_inner(2);
+    for j = 2:J-2
+        d(j) = off_diagB(j-1)*u_inner(j-1) + diagB(j)*u_inner(j) + off_diagB(j)*u_inner(j+1);
+    end
+    d(end) = off_diagB(end)*u_inner(end-1) + diagB(end)*u_inner(end);
+    
+    FTCS(2:end-1) = tri_diag_sol(a, b, c, d); % updating FTCSn (the solution at time step n)
     FTCSn = FTCS;
     
     % evaluating the exact solution (for b0 = 0 and bL = 0)
