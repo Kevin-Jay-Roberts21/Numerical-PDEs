@@ -11,11 +11,11 @@ J = 200; % number of grid points (not counting zero)
 x = linspace(0, L, J+1); % set up a vector of x locations
 dx = L/J; % size of a grid cell, delta x
 D = 1; % diffusion coefficient
-dt = 0.0045; % size of time step, delta t
+dt = 0.0049; % size of time step, delta t
 p = D*dt/(dx^2) % defining the dimensionless combination to be p (rho)
-T = 15; % duraction of simulation
+T = 5; % duraction of simulation
 N = round(T/dt); % number of times to iterate simuation to get to time T
-a = 2; 
+a = 4; 
 
 % Note: from the notes, the system is stable is 1/2 < rho < 1/2(1 + a*dx) 
 LHS_cond = 1/2;
@@ -34,7 +34,7 @@ FTCS = FTCS0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FTCS Method on the Diffusion Equation %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-hold on, plot(x, FTCS0, 'b'), hold off % plot the IC
+hold on, plot(x, FTCS0, 'r'), hold off % plot the IC
 
 % add labels to the plot
 xlabel('x'), ylabel('u(x,t)')
@@ -42,7 +42,7 @@ title(['FTCS method on the diffusion equation, \rho = ' num2str(D*dt/(dx^2)) ' a
 
 for n = 2:N % beginning the for time loop
     
-    FTCSn(1) = (1 - 2*p*(1 + a*dx))*FTCS(1) + 2*a*p*T*dx;
+    FTCSn(1) = (1 - 2*p*(1 + a*dx))*FTCS(1) + 2*p*FTCS(2) + 2*a*p*T*dx;
     
     for j = 2:J % begin spatial loop; note that j = 1 is x = 0    
         
