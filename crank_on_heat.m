@@ -117,7 +117,6 @@ bL = 2; % right boundary condition
 i_c = 2*sin(x*(pi/L)) + sin(x*(2*pi/L));
 
 % setting the initial conditions for the various methods
-exact = i_c;
 FTCS = i_c';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,17 +138,18 @@ sup_diagB = (p/2)*ones(J, 1); % super off diagonals
 sub_diagB = (p/2)*ones(J, 1); % sub off diagonals
 
 % account for boundary conditions (need to change the top and bottom row of A and B)
+% POTENTIAL ISSUE HERE
 A(1, 1) = 1;
 A(1, 2) = 0;
 A(J+1, J+1) = 1;
 A(J+1, J) = 0;
 
 diagB(1) = 1;
-diagB(J+1) = p;
-sup_diagB(1) = 0;
+diagB(J+1) = 1;
+sup_diagB(1) = 0; 
 sub_diagB(J) = 0;
 
-B = diag(diagB) + diag(sup_diagB, 1) + diag(sub_diagB, -1);
+B = diag(diagB) + diag(sup_diagB, 1) + diag(sub_diagB, -1); % defined just for viewing in debugger
 
 % defining vectors that will be plugged into the tridiagonal function
 a = diagA;
@@ -162,11 +162,11 @@ for n = 1:N
 
     % Compute d using the tridiagonal structure (as opposed to d = B * FTCS(2:end-1))
     
-    d(1) = b0; % diagB(1)*FTCS(2) + sup_diagB(1)*FTCS(1);
+    d(1) = diagB(1)*b0;
     for j = 2:J
         d(j) = sup_diagB(j-1)*FTCS(j-1) + diagB(j)*FTCS(j) + sub_diagB(j-1)*FTCS(j+1);
     end
-    d(J+1) = bL; % sub_diagB(J)*FTCS(J) + diagB(J+1)*FTCS(J+1);
+    d(J+1) = diagB(J+1)*bL;
     
     FTCSn = tri_diag_sol(a, b, c, d); 
 
@@ -201,7 +201,6 @@ N = round(T/dt); % number of times to iterate simuation to get to time T
 i_c = 2*sin(x*(pi/(2*L))) + 3*sin(x*(3*pi/(2*L)));
 
 % setting the initial conditions for the various methods
-exact = i_c;
 FTCS = i_c';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -223,15 +222,7 @@ sup_diagB = (p/2)*ones(J, 1); % super off diagonals
 sub_diagB = (p/2)*ones(J, 1); % sub off diagonals
 
 % account for boundary conditions (need to change the top and bottom row of A and B)
-% A(1, 1) = 1;
-% A(1, 2) = 0;
-%A(J+1, J+1) = 1;
-A(J+1, J) = p;
-
-% diagB(1) = 1;
-% diagB(J+1) = 1;
-% sup_diagB(1) = 0;
-%sub_diagB(J) = p;
+A(J+1, J) = -p;
 
 % defining vectors that will be plugged into the tridiagonal function
 a = diagA;
@@ -244,11 +235,11 @@ for n = 1:N
 
     % Compute d using the tridiagonal structure (as opposed to d = B * FTCS(2:end-1))
     
-    d(1) = diagB(1)*FTCS(2) + sup_diagB(1)*FTCS(1);
+    d(1) = b0; % diagB(1)*FTCS(2) + sup_diagB(1)*FTCS(1);
     for j = 2:J
         d(j) = sup_diagB(j-1)*FTCS(j-1) + diagB(j)*FTCS(j) + sub_diagB(j-1)*FTCS(j+1);
     end
-    d(J+1) = sub_diagB(J)*FTCS(J) + diagB(J+1)*FTCS(J+1);
+    d(J+1) = p*FTCS(J) + (1 - p)*FTCS(J+1); % ??? sub_diagB(J)*FTCS(J) + diagB(J+1)*FTCS(J+1);
     
     FTCSn = tri_diag_sol(a, b, c, d); 
 
