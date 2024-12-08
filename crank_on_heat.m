@@ -130,31 +130,29 @@ title(['Crank Nicolson method on the diffusion equation, \rho = ' num2str(D*dt/(
 
 % Define matrices A and B
 diagA = (1 + p)*ones(J+1, 1); % diagonal
-off_diagA = (-p/2)*ones(J, 1); % off diagonals
-A = diag(diagA) + diag(off_diagA, 1) + diag(off_diagA, -1);
+sup_diagA = (-p/2)*ones(J, 1); % super diagonals of A
+sub_diagA = (-p/2)*ones(J, 1); % sub diagonals of A
 
 diagB = (1 - p)*ones(J+1, 1); % diagonal
-sup_diagB = (p/2)*ones(J, 1); % super off diagonals
-sub_diagB = (p/2)*ones(J, 1); % sub off diagonals
+sup_diagB = (p/2)*ones(J, 1); % super off diagonals of B
+sub_diagB = (p/2)*ones(J, 1); % sub off diagonals of B
 
 % account for boundary conditions (need to change the top and bottom row of A and B)
 % POTENTIAL ISSUE HERE
-A(1, 1) = 1;
-A(1, 2) = 0;
-A(J+1, J+1) = 1;
-A(J+1, J) = 0;
+diagA(1) = 1;
+sup_diagA(1) = 0;
+diagA(J+1) = 1;
+sub_diagA(J) = 0;
 
 diagB(1) = 1;
 diagB(J+1) = 1;
 sup_diagB(1) = 0; 
 sub_diagB(J) = 0;
 
-B = diag(diagB) + diag(sup_diagB, 1) + diag(sub_diagB, -1); % defined just for viewing in debugger
-
 % defining vectors that will be plugged into the tridiagonal function
 a = diagA;
-b = off_diagA;
-c = off_diagA;
+b = sup_diagA;
+c = sub_diagA;
 
 for n = 1:N
     
@@ -162,14 +160,18 @@ for n = 1:N
 
     % Compute d using the tridiagonal structure (as opposed to d = B * FTCS(2:end-1))
     
-    d(1) = diagB(1)*b0;
+    d(1) = b0;
     for j = 2:J
         d(j) = sup_diagB(j-1)*FTCS(j-1) + diagB(j)*FTCS(j) + sub_diagB(j-1)*FTCS(j+1);
     end
-    d(J+1) = diagB(J+1)*bL;
+    d(J+1) = bL;
     
     FTCSn = tri_diag_sol(a, b, c, d); 
 
+    % enforcing boundary conditions (probably not needed though due to how A and B are defined)
+    FTCSn(1) = b0;
+    FTCSn(J+1) = bL;
+    
     if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
         hold on, plot(x,FTCSn,'b'), hold off % if so, add a plot of current solution to existing plot
     end
@@ -200,6 +202,9 @@ N = round(T/dt); % number of times to iterate simuation to get to time T
 % Used for homogeneous bc
 i_c = 2*sin(x*(pi/(2*L))) + 3*sin(x*(3*pi/(2*L)));
 
+% left boundary condition
+b0 = 0;
+
 % setting the initial conditions for the various methods
 FTCS = i_c';
 
@@ -214,20 +219,20 @@ title(['Crank Nicolson method on the diffusion equation, \rho = ' num2str(D*dt/(
 
 % Define matrices A and B
 diagA = (1 + p)*ones(J+1, 1); % diagonal
-off_diagA = (-p/2)*ones(J, 1); % off diagonals
-A = diag(diagA) + diag(off_diagA, 1) + diag(off_diagA, -1);
+sup_diagA = (-p/2)*ones(J, 1); % super diagonal of A
+sub_diagA = (-p/2)*ones(J, 1); % sub diagonal of A
 
 diagB = (1 - p)*ones(J+1, 1); % diagonal
 sup_diagB = (p/2)*ones(J, 1); % super off diagonals
 sub_diagB = (p/2)*ones(J, 1); % sub off diagonals
 
 % account for boundary conditions (need to change the top and bottom row of A and B)
-A(J+1, J) = -p;
+sub_diagA(J) = -p;
 
 % defining vectors that will be plugged into the tridiagonal function
 a = diagA;
-b = off_diagA;
-c = off_diagA;
+b = sup_diagA;
+c = sub_diagA;
 
 for n = 1:N
     
@@ -239,10 +244,10 @@ for n = 1:N
     for j = 2:J
         d(j) = sup_diagB(j-1)*FTCS(j-1) + diagB(j)*FTCS(j) + sub_diagB(j-1)*FTCS(j+1);
     end
-    d(J+1) = p*FTCS(J) + (1 - p)*FTCS(J+1); % ??? sub_diagB(J)*FTCS(J) + diagB(J+1)*FTCS(J+1);
+    d(J+1) = p*FTCS(J) + (1 - p)*FTCS(J+1); % sub_diagB(J)*FTCS(J) + diagB(J+1)*FTCS(J+1);
+     
+    FTCSn = tri_diag_sol(a, b, c, d);
     
-    FTCSn = tri_diag_sol(a, b, c, d); 
-
     if mod(n*dt,2) < dt % check if current time is close to a multiple of 2
         hold on, plot(x,FTCSn,'b'), hold off % if so, add a plot of current solution to existing plot
     end
