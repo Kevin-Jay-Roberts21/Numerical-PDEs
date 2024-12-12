@@ -11,7 +11,7 @@ Lx = 5; J = 50; dx = Lx/J; x = linspace(0, Lx, J+1);
 Ly = 10; K = 100; dy = Ly/K; y = linspace(0, Ly, K+1);
 [X,Y] = meshgrid(x,y); % this command sets up matrices of coordinate values
 D = 1; dt = 0.24*dx^2/D; % dt just below stability boundary
-T = 10; N = ceil(T/dt); % how long to run simulation
+T = 20; N = ceil(T/dt); % how long to run simulation
 r1 = D*dt/dx^2; r2 = D*dt/dy^2; % dimensionless rhos
 
 g1 = Ly/2 - abs(Ly/2 - y); % BC at x=0
@@ -31,14 +31,15 @@ un(:, J+1) = g2; % BC at x=Lx    -- necessary since we will use up=un to update 
 
 for n = 1:N % begin loop in time 
     for j = 2:J
-        for k = 2:K-1
+        for k = 2:K
             un(k, j) = up(k, j) + r1*(up(k, j+1) + up(k, j-1) - 2*up(k, j))+...
                 r2*(up(k+1, j) + up(k-1, j) - 2*up(k, j));
         end     
     end
     
     % applying the no-flux boundary condition at y = L_y
-    un(K, :) = un(K-1, :); % setting u at y = L_y equal to u at the second to last row
+    un(K+1, :) = up(K+1, j) + r1*(up(K+1, j+1) + up(K+1, j-1) - 2*up(K+1, j))+...
+                r2*(2*up(K, j) - 2*up(K+1, j));
     
     up = un;  % update for next time step
 
