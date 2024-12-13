@@ -35,11 +35,11 @@ for n = 1:N % begin loop in time
             un(k, j) = up(k, j) + r1*(up(k, j+1) + up(k, j-1) - 2*up(k, j))+...
                 r2*(up(k+1, j) + up(k-1, j) - 2*up(k, j));
         end     
-    end
-    
-    % applying the no-flux boundary condition at y = L_y
-    un(K+1, :) = up(K+1, j) + r1*(up(K+1, j+1) + up(K+1, j-1) - 2*up(K+1, j))+...
+
+        % applying the no-flux boundary condition at y = L_y
+        un(K+1, j) = up(K+1, j) + r1*(up(K+1, j+1) + up(K+1, j-1) - 2*up(K+1, j))+...
                 r2*(2*up(K, j) - 2*up(K+1, j));
+    end
     
     up = un;  % update for next time step
 
